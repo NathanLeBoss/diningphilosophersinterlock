@@ -25,19 +25,36 @@ public class Philosopher
         while (running) {
             try {
                 think();
-                myLeftStick.take();
-                // think(); // Pour augmenter la probabilité d'interblocage
-                myRightStick.take();
-                // success : process
-                eat();
-                // release resources
-                myLeftStick.release();
-                myRightStick.release();
+                if(takeStick(myLeftStick)){
+                    if(takeStick(myRightStick)){
+                        // sucess
+                        eat();
+                        releaseStick(myLeftStick);
+                        releaseStick(myRightStick);
+                    } else {
+                        releaseStick(myLeftStick);
+                    }
+                }
                 // try again
             } catch (InterruptedException ex) {
                 Logger.getLogger("Table").log(Level.SEVERE, "{0} Interrupted", this.getName());
             }
         }
+    }
+
+    public boolean takeStick(ChopStick stick) throws  InterruptedException {
+        int time = DELAY*3;
+        if(stick.tryTake(time)){
+            System.out.println(this.getName() + " a prit la baguette " + stick);
+        } else {
+            System.out.println(this.getName() + " n'a pas prit la baguette " + stick);
+        }
+        return stick.tryTake(time);
+    }
+
+    public void releaseStick(ChopStick stick){
+        stick.release();
+        System.out.println(this.getName() + " a déposé " + stick);
     }
 
     // Permet d'interrompre le philosophe "proprement" :

@@ -11,14 +11,15 @@ public class ChopStick {
         myNumber = ++stickCount;
     }
 
-    synchronized public void take() throws InterruptedException {
-        while (!iAmFree) {
-            wait();
+    synchronized public boolean tryTake(int delai) throws InterruptedException {
+        if(!iAmFree){
+            try{
+                wait(delai);
+            } catch (InterruptedException exception){}
+            if(!iAmFree) return false;
         }
-        // assert iAmFree;
         iAmFree = false;
-        System.out.println("Stick " + myNumber + " Taken");
-        // Pas utile de faire notifyAll ici, personne n'attend qu'elle soit occupée
+        return true;
     }
 
     synchronized public void release() {
